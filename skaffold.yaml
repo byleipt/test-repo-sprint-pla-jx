@@ -1,0 +1,30 @@
+apiVersion: skaffold/v1beta2
+kind: Config
+build:
+  artifacts:
+  - image: changeme
+    context: .
+    docker: {}
+  tagPolicy:
+    envTemplate:
+      template: '{{.DOCKER_REGISTRY}}/byleipt/test-repo-sprint-pla-jx:{{.VERSION}}'
+  local: {}
+deploy:
+  kubectl: {}
+profiles:
+- name: dev
+  build:
+    artifacts:
+    - docker: {}
+    tagPolicy:
+      envTemplate:
+        template: '{{.DOCKER_REGISTRY}}/byleipt/test-repo-sprint-pla-jx:{{.DIGEST_HEX}}'
+    local: {}
+  deploy:
+    helm:
+      releases:
+      - name: test-repo-sprint-pla-jx
+        chartPath: charts/test-repo-sprint-pla-jx
+        setValueTemplates:
+          image.repository: '{{.DOCKER_REGISTRY}}/byleipt/test-repo-sprint-pla-jx'
+          image.tag: '{{.DIGEST_HEX}}'
